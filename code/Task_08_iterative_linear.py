@@ -13,7 +13,7 @@ A = np.array([
 # Boundary influence: left boundary = 100 C, right boundary = 20 C
 b = np.array([100., 0., 0., 0., 20.])
 
-def jacobi(A, b, tol=1e-4, max_iter=500):
+def jacobi(A, b, tol=1e-8, max_iter=500):
     D = np.diag(A)
     R = A - np.diagflat(D)
     x = np.zeros_like(b)
@@ -29,7 +29,7 @@ def jacobi(A, b, tol=1e-4, max_iter=500):
 
     return x, errors
 
-def gauss_seidel(A, b, tol=1e-4, max_iter=500):
+def gauss_seidel(A, b, tol=1e-8, max_iter=500):
     x = np.zeros_like(b)
     errors = []
 
