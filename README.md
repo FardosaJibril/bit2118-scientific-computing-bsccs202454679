@@ -113,3 +113,48 @@ Name: Fardosa Jibril | Reg No: bsccs202454679
 **Output interpretation:** The two guesses converge to (1.5175, 1.3028) and (-1.5175, 1.3028). The residuals are about 1e-13 and Converged is True for both. The circle and parabola are both symmetric about the y-axis, so the two intersections are mirror images of each other.
 
 **New related case:** A drone flies along the parabola y = x² - 1 and crosses a straight road y = x + 1. Assumption: both are in the same plane. Starting from the guesses [3, 3] and [-2, 0], the solver finds the crossing points (2, 3) and (-1, 0), both with Converged True. Check: 2² - 1 = 3 and (-1)² - 1 = 0.
+## Task 13: Interpolation
+
+**Inputs and operation:** The inputs are hourly temperatures from 08:00 to 14:00 (18, 20, 22.5, 24, 25, 25.5 and 25 °C). The program builds a linear interpolation and a cubic spline from them, then estimates the temperature every 10 minutes (37 points from 8 to 14).
+
+**Parameter change:** I removed the 11:00 measurement and estimated the temperature at 11:00 from the other points. Linear interpolation gave 23.75 °C and the cubic spline gave 24.11 °C, while the real value was 24.0 °C. The linear estimate was off by 0.25 °C and the cubic estimate by 0.11 °C, so the smooth spline did better because the temperature curve bends.
+
+**Output interpretation:** At 10:30 the linear estimate is 23.25 °C and the cubic spline estimate is 23.36 °C. On the graph, the horizontal axis is the hour of day and the vertical axis is temperature. The dots are the seven hourly measurements. The linear estimate joins them with straight segments, and the cubic spline passes through the same dots with a smooth curve that rises quickly in the morning and levels off in the afternoon. The two methods differ by at most about 0.19 °C, so either is reasonable here, but the spline gives a more natural curve.
+
+![Task 13 interpolation](task13_interpolation.png)
+
+**New related case:** A phone battery voltage measured every hour for 6 hours. Assumption: the voltage falls smoothly as the battery drains. Input data (volts): 4.20, 4.12, 4.02, 3.91, 3.80, 3.70, 3.62. At 2.5 hours the linear estimate is 3.965 V and the cubic estimate is 3.966 V. At 4.5 hours they are 3.750 V and 3.748 V. Interpretation: the two methods agree closely because the voltage falls almost steadily, so the missing readings between measurements can be estimated reliably.
+
+## Task 14: Curve Fitting and Approximation
+
+**Inputs and operation:** The inputs are server response times (82, 95, 115, 145, 185, 238 and 305 ms) measured at 50 to 350 concurrent users. The program fits a quadratic model y = ax² + bx + c with scipy.optimize.curve_fit, which chooses a, b and c to minimize the sum of squared residuals, then reports the RMSE and predicts the response at 400 users.
+
+**Parameter change:** I changed the model from quadratic to linear and to cubic and compared the RMSE. The linear model gave an RMSE of 18.83 ms (a poor fit, because the data bends upward), the quadratic gave 1.55 ms, and the cubic gave 0.14 ms. The predictions at 400 users were 312.86 ms (linear), 377.86 ms (quadratic) and 387.86 ms (cubic).
+
+**Output interpretation:** The fitted model is y = 0.002167x² - 0.1345x + 85.00 with an RMSE of 1.55 ms, so the curve is typically within about 1.5 ms of each measurement. The predicted response at 400 users is 377.86 ms. On the graph, the horizontal axis is the number of concurrent users and the vertical axis is the response time. The dots are the measurements and the fitted curve passes close to every one of them, rising slowly at first and then steeply as the load grows. The prediction at 400 users is extrapolation, outside the measured range of 50 to 350 users, so it is less reliable, and the models disagree by about 10 ms there.
+
+![Task 14 curve fitting](task14_curve_fitting.png)
+
+**New related case:** Weekly sales (in thousands) against advertising spend (in thousands) for 7 weeks. Assumption: sales grow about linearly with advertising. Input data: spend 1, 2, 3, 4, 5, 6, 7 and sales 12.5, 15.1, 17.2, 19.8, 22.4, 24.9, 27.3. The linear fit is sales = 2.4714 × spend + 10.00, with an RMSE of 0.11. Interpretation: each extra 1 unit of advertising is linked to about 2.47 extra units of sales, with a baseline of 10 with no advertising. The prediction for a spend of 8 is 29.77.
+
+## Task 15: Numerical Differentiation
+
+**Inputs and operation:** The inputs are GPS positions in metres (0, 4.8, 10.2, 16.1, 22.7, 30.0 and 38.0) at times 0 to 6 s. The program estimates speed using a forward difference at the first point, central differences at the interior points and a backward difference at the last point.
+
+**Parameter change:** I changed the position at t = 3 s from 16.1 m to 17.0 m. The estimated speed at t = 2 s rose from 5.65 to 6.10 m/s and at t = 4 s it fell from 6.95 to 6.50 m/s, while the speed at t = 3 s stayed at 6.25 m/s. A central difference does not use the point itself, only its two neighbours, so a change in one reading shows up in the estimates on either side of it.
+
+**Output interpretation:** The estimated speed rises from 4.8 m/s at t = 0 to 8.0 m/s at t = 6 s (4.8, 5.1, 5.65, 6.25, 6.95, 7.65, 8.0), so the vehicle is speeding up by about 0.5 m/s every second. On the graph, the horizontal axis is time in seconds and the vertical axis is estimated speed. The line rises steadily from left to right, which means constant acceleration. The first and last values use one-sided differences, so they are less accurate than the interior ones.
+
+![Task 15 speed](task15_speed.png)
+
+**New related case:** A falling object, with distance s = 4.9t² metres recorded every 0.5 s for 4 s. Assumption: no air resistance. Input data: 0, 1.225, 4.9, 11.025, 19.6, 30.625, 44.1, 60.025, 78.4 m. The estimated speeds are 2.45, 4.9, 9.8, 14.7, 19.6, 24.5, 29.4, 34.3, 36.75 m/s, and the true speeds (v = 9.8t) are 0, 4.9, 9.8, 14.7, 19.6, 24.5, 29.4, 34.3, 39.2 m/s. The interior estimates match exactly, because central differences are exact for a quadratic, while the two end points are off by 2.45 m/s because they use one-sided differences.
+
+## Task 16: Numerical Integration
+
+**Inputs and operation:** The inputs are smart-meter power readings every two hours over 12 hours (0.8, 1.0, 1.4, 1.8, 1.6, 1.2 and 0.9 kW). The program estimates the total energy (the area under the power curve) with the trapezoidal rule and Simpson's rule.
+
+**Parameter change:** I raised the 06:00 reading from 1.8 kW to 2.6 kW. The trapezoidal energy rose from 15.7 to 17.3 kWh and Simpson's from 15.8 to 17.933 kWh. The two methods now differ by 0.63 kWh instead of 0.1, because a sharper peak is harder for straight segments to approximate.
+
+**Output interpretation:** The trapezoidal rule gives 15.700 kWh and Simpson's rule 15.800 kWh, a difference of 0.100 kWh. So the home used about 15.7 to 15.8 kWh in 12 hours, an average power of about 1.31 kW. The two answers are close because the power changes smoothly.
+
+**New related case:** Distance travelled by a car from its speedometer. Assumption: the speed (m/s) is read every 10 s for 60 s. Input data: 0, 5, 12, 18, 22, 24, 24 m/s. The trapezoidal rule gives 930.0 m and Simpson's rule gives 933.33 m. Interpretation: the car travelled about 930 m in one minute, and the two methods agree within about 3 m.
