@@ -158,3 +158,48 @@ Name: Fardosa Jibril | Reg No: bsccs202454679
 **Output interpretation:** The trapezoidal rule gives 15.700 kWh and Simpson's rule 15.800 kWh, a difference of 0.100 kWh. So the home used about 15.7 to 15.8 kWh in 12 hours, an average power of about 1.31 kW. The two answers are close because the power changes smoothly.
 
 **New related case:** Distance travelled by a car from its speedometer. Assumption: the speed (m/s) is read every 10 s for 60 s. Input data: 0, 5, 12, 18, 22, 24, 24 m/s. The trapezoidal rule gives 930.0 m and Simpson's rule gives 933.33 m. Interpretation: the car travelled about 930 m in one minute, and the two methods agree within about 3 m.
+## Task 17: Ordinary Differential Equations: Euler Method
+
+**Inputs and operation:** The inputs are Newton's law of cooling dT/dt = -k(T - T_ambient) with ambient temperature 25 °C, initial temperature 90 °C, cooling constant k = 0.12 per minute, a step size h = 1 minute and an end time of 30 minutes. Euler's method repeatedly applies T(next) = T + h × (-k(T - 25)), and the program compares the result with the exact solution.
+
+**Parameter change:** I changed the step size h. With h = 5 minutes the Euler result after 30 minutes was 25.27 °C, an error of 1.51 °C. With h = 1 minute it was 26.40 °C (error 0.37 °C), and with h = 0.1 minute it was 26.74 °C (error 0.038 °C). A smaller step gives a more accurate answer but needs more steps (301 steps for h = 0.1 against 6 for h = 5).
+
+**Output interpretation:** After 30 minutes the Euler method gives 26.40 °C and the exact solution gives 26.78 °C, so the final absolute error is 0.3720 °C. On the graph, the horizontal axis is time in minutes and the vertical axis is temperature. The object cools quickly at first, when it is much hotter than the room, and then more slowly as it approaches 25 °C. The Euler points lie slightly below the exact curve, because Euler uses the cooling rate at the start of each step, which is a little too fast.
+
+![Task 17 Euler method](task17_euler.png)
+
+**New related case:** A cup of tea cooling in a room. Assumptions: initial temperature 95 °C, room temperature 22 °C, k = 0.07 per minute, step h = 2 minutes, 40 minutes in total. With h = 2 the Euler method gives 25.58 °C after 40 minutes and the exact answer is 26.44 °C, an error of 0.864 °C. Interpretation: the tea is near room temperature after 40 minutes, and a smaller step (for example 0.5 minute) would reduce the error.
+
+## Task 18: Numerical Solution of ODEs Using SciPy
+
+**Inputs and operation:** The inputs are a supply voltage of 5 V, a resistance of 1000 ohms, a capacitance of 0.001 F (so R × C = 1 s), an initial capacitor voltage of 0 V and a time interval of 0 to 5 seconds. The program solves dV/dt = (Vs - V)/(RC) with scipy.integrate.solve_ivp and compares the result with the exact charging curve.
+
+**Parameter change:** I changed the capacitance from 0.001 F to 0.005 F, so R × C became 5 s. The voltage at 5 s fell from 4.9663 V to 3.1606 V. A larger capacitor takes longer to charge. At t = RC the voltage is about 63% of the supply, and 5 × (1 - e^(-1)) = 3.16 V.
+
+**Output interpretation:** The solver succeeded and the capacitor voltage at 5 s is 4.9663 V, almost the full 5 V supply. The maximum error against the exact solution is 9.28e-10 V, so the numerical solution is very accurate. On the graph, the horizontal axis is time in seconds and the vertical axis is the capacitor voltage. The voltage rises quickly at first and then levels off near 5 V. The solid solve_ivp line and the dashed exact line lie on top of each other.
+
+![Task 18 RC circuit](task18_rc_circuit.png)
+
+**New related case:** A capacitor discharging through a resistor. Assumptions: initial voltage 9 V, R = 2000 ohms, C = 0.0005 F (RC = 1 s), equation dV/dt = -V/(RC). The solver gives 0.4481 V at 3 s and 0.0606 V at 5 s, which match 9e^(-3) and 9e^(-5). Interpretation: the voltage decays quickly towards zero, losing about 63% of its value every second.
+
+## Task 19: Numerical Optimization
+
+**Inputs and operation:** The objective is the cost 12x + 18y, where x and y are the amounts of Type A and Type B servers. The constraint is 100x + 170y ≥ 1000 (the required capacity), with x ≥ 0 and y ≥ 0. scipy.optimize.minimize with the SLSQP method finds the cheapest allocation, starting from (5, 3), and a loop then checks whole-number combinations.
+
+**Parameter change:** I raised the cost of Type B from 18 to 22. The optimum switched from all Type B (y = 5.882, cost 105.88) to all Type A (x = 10, cost 120). Type B was the cheaper way to buy capacity (about 0.106 per unit against 0.12 for Type A), but at a cost of 22 it costs 0.129 per unit, so Type A becomes cheaper.
+
+**Output interpretation:** The optimization succeeded. The cheapest allocation is 0 of Type A and 5.882 of Type B, with a total capacity of exactly 1000 and a minimum cost of 105.88. The constraint is met with equality, which is typical because spending more than necessary only raises the cost. If whole servers are required, the best choice is 0 Type A and 6 Type B, with a capacity of 1020 and a cost of 108.
+
+**New related case:** A delivery company chooses between vans (cost 40, carries 300 parcels) and bikes (cost 15, carries 80 parcels) to deliver at least 2000 parcels. Assumption: costs are per day and are spread evenly over the parcels carried. The continuous optimum is 6.667 vans and no bikes, with a cost of 266.67. With whole vehicles, the best choice is 7 vans and 0 bikes, which carry 2100 parcels at a cost of 280. Interpretation: vans carry parcels more cheaply (0.133 per parcel against 0.1875 for bikes), so the cheapest plan uses vans only.
+
+## Task 20: Random Numbers and Monte Carlo Methods
+
+**Inputs and operation:** The inputs are a server capacity of 1000, a demand that is normally distributed with mean 850 and standard deviation 120, 100,000 random scenarios and a fixed random seed of 42. The program counts the scenarios where demand exceeds capacity and divides by the total to estimate the overload probability.
+
+**Parameter change:** I changed the standard deviation of demand from 120 to 160. The overload probability rose from 10.62% to 17.40%. More uncertain demand makes very high demand more likely, even though the average is unchanged. I also changed N from 100,000 to 1,000, and the estimate moved to 10.10%, further from the exact value of 10.56%, so fewer simulations give a rougher estimate.
+
+**Output interpretation:** The estimated overload probability is 10.6160%, with 10616 overloaded scenarios out of 100,000. The exact value from the normal distribution is 10.565%, so the simulation is very close. In practice, the server is expected to be overloaded in about one scenario in ten. On the graph, the horizontal axis is the number of simulations (log scale) and the vertical axis is the estimated probability. The line swings widely at the start, when there are few simulations, and then settles near 0.106 as the number grows, which shows the estimate converging.
+
+![Task 20 Monte Carlo](task20_monte_carlo.png)
+
+**New related case:** A help desk receives calls per hour with mean 45 and standard deviation 8, and the staff can handle at most 60 calls. Assumption: call numbers are normally distributed. With 100,000 simulations the estimated probability of more calls than the staff can handle is 3.114% (3114 cases), and the exact value is 3.04%. Interpretation: the help desk is overloaded about 3 hours in every 100, so it is generally adequately staffed.
